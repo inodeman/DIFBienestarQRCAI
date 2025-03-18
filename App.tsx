@@ -27,8 +27,14 @@ const QRScanner: React.FC = () => {
     console.log('🎥 Cámara trasera detectada:', device);
   }, [devices]);
 
-  if (!device) return <Text style={styles.errorText}>⚠️ No hay cámara disponibleeeeee</Text>;
-  if (!hasPermission) return <Text style={styles.errorText}>🚫 Sin permisos de cámara</Text>;
+  if (!device) {
+    console.error('❌ No se detectó ninguna cámara en el dispositivo.');
+    return <Text style={styles.errorText}>⚠️ No hay cámara disponible</Text>;
+  }
+  if (!hasPermission) {
+    console.error('❌ No se tienen permisos de cámara.');
+    return <Text style={styles.errorText}>🚫 Sin permisos de cámara</Text>;
+  }
 
   return (
     <View style={styles.container}>
