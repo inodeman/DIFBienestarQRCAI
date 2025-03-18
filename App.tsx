@@ -8,6 +8,38 @@ const QRScanner: React.FC = () => {
   const [hasPermission, setHasPermission] = useState<boolean>(false);
 
   useEffect(() => {
+    const devices = useCameraDevices();
+    console.log('📷 Dispositivos de cámara detectados:', devices);
+    const backDevice = devices.back;
+    const frontDevice = devices.front;
+  
+    if (backDevice) {
+      console.log('🎥 Cámara trasera detectada:', backDevice);
+    }
+    if (frontDevice) {
+      console.log('🎥 Cámara frontal detectada:', frontDevice);
+    }
+  }, [devices]);
+  
+  useEffect(() => {
+    (async () => {
+      const status = await Camera.getCameraPermissionStatus();
+      console.log('📸 Permiso de cámara:', status);
+  
+      const devices = useCameraDevices();
+      console.log('📷 Todas las cámaras disponibles:', devices);
+      
+      if (!devices.back && !devices.front) {
+        console.error('❌ No se detectó ninguna cámara en el dispositivo.');
+      } else {
+        console.log('✅ Cámara trasera:', devices.back);
+        console.log('✅ Cámara frontal:', devices.front);
+      }
+    })();
+  }, []);
+  
+
+  useEffect(() => {
     (async () => {
       const cameraStatus = await Camera.getCameraPermissionStatus();
       console.log('📸 Estado del permiso de la cámara:', cameraStatus);
