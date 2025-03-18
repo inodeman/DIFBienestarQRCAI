@@ -9,15 +9,26 @@ const QRScanner: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const status = await Camera.requestCameraPermission();
-      setHasPermission(status === 'authorized');
-      const newCameraPermission = await Camera.requestCameraPermission();
-      console.log('Camera permission status:', newCameraPermission);
+      const cameraStatus = await Camera.getCameraPermissionStatus();
+      console.log('📸 Estado del permiso de la cámara:', cameraStatus);
+
+      if (cameraStatus !== 'authorized') {
+        const newCameraPermission = await Camera.requestCameraPermission();
+        console.log('🔄 Nuevo estado del permiso:', newCameraPermission);
+        setHasPermission(newCameraPermission === 'authorized');
+      } else {
+        setHasPermission(true);
+      }
     })();
   }, []);
 
-  if (!device) return <Text>No hay cámara disponible</Text>;
-  if (!hasPermission) return <Text>Sin permisos de cámara</Text>;
+  useEffect(() => {
+    console.log('📷 Dispositivos de cámara detectados:', devices);
+    console.log('🎥 Cámara trasera detectada:', device);
+  }, [devices]);
+
+  if (!device) return <Text style={styles.errorText}>⚠️ No hay cámara disponibleeeeee</Text>;
+  if (!hasPermission) return <Text style={styles.errorText}>🚫 Sin permisos de cámara</Text>;
 
   return (
     <View style={styles.container}>
@@ -29,6 +40,7 @@ const QRScanner: React.FC = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   camera: { width: '100%', height: '100%' },
+  errorText: { color: 'red', fontSize: 18, fontWeight: 'bold' },
 });
 
 export default QRScanner;
