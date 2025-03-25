@@ -9,16 +9,19 @@ const QRScanner: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true); // Indicador de carga
 
   useEffect(() => {
-    // Solicita y verifica permisos de cámara
     (async () => {
       try {
+        console.log('📸 Verificando permisos...');
         const status = await Camera.getCameraPermissionStatus();
-        console.log('📸 Estado del permiso:', status);
+        console.log('📸 Estado actual del permiso:', status);
+  
         if (status !== 'authorized') {
+          console.log('📸 Solicitando permisos de cámara...');
           const newPermission = await Camera.requestCameraPermission();
-          console.log('🔄 Estado actualizado:', newPermission);
+          console.log('🔄 Estado actualizado del permiso:', newPermission);
           setHasPermission(newPermission === 'authorized');
         } else {
+          console.log('✅ Permisos ya otorgados.');
           setHasPermission(true);
         }
       } catch (error) {
@@ -27,19 +30,20 @@ const QRScanner: React.FC = () => {
       }
     })();
   }, []);
-
+  
   useEffect(() => {
-    // Selecciona la cámara (prioriza trasera)
+    console.log('📷 Buscando dispositivos de cámara...');
     if (devices) {
+      console.log('📷 Dispositivos detectados:', devices);
       const { back, front } = devices;
       if (back) {
-        console.log('🎥 Cámara trasera detectada:', back);
+        console.log('🎥 Cámara trasera seleccionada:', back);
         setDevice(back);
       } else if (front) {
-        console.log('🎥 Cámara frontal detectada:', front);
+        console.log('🎥 Cámara frontal seleccionada:', front);
         setDevice(front);
       } else {
-        console.error('❌ No se detectaron cámaras.');
+        console.error('❌ No se detectaron cámaras disponibles.');
       }
     }
     setLoading(false);
