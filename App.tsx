@@ -3,35 +3,43 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 
 const QRScanner: React.FC = () => {
-  const devices = useCameraDevices();
-  const [device, setDevice] = useState<any>(null);
-  const [hasPermission, setHasPermission] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const devices = useCameraDevices(); // Obtiene los dispositivos de cámara disponibles
+  const [device, setDevice] = useState<any>(null); // Cámara seleccionada
+  const [hasPermission, setHasPermission] = useState<boolean>(false); // Estado de permisos
+  const [loading, setLoading] = useState<boolean>(true); // Indicador de carga
 
   useEffect(() => {
+    // Solicita y verifica permisos de cámara
     (async () => {
       try {
         const status = await Camera.getCameraPermissionStatus();
+        console.log('📸 Estado del permiso:', status);
         if (status !== 'authorized') {
           const newPermission = await Camera.requestCameraPermission();
+          console.log('🔄 Estado actualizado:', newPermission);
           setHasPermission(newPermission === 'authorized');
         } else {
           setHasPermission(true);
         }
       } catch (error) {
-        console.error('⚠️ Error al solicitar permisos de cámara:', error);
+        console.error('⚠️ Error al gestionar permisos:', error);
         setHasPermission(false);
       }
     })();
   }, []);
 
   useEffect(() => {
+    // Selecciona la cámara (prioriza trasera)
     if (devices) {
       const { back, front } = devices;
       if (back) {
+        console.log('🎥 Cámara trasera detectada:', back);
         setDevice(back);
       } else if (front) {
+        console.log('🎥 Cámara frontal detectada:', front);
         setDevice(front);
+      } else {
+        console.error('❌ No se detectaron cámaras.');
       }
     }
     setLoading(false);
@@ -51,7 +59,7 @@ const QRScanner: React.FC = () => {
   }
 
   if (!device) {
-    return <Text style={styles.errorText}>⚠️ No hay cámara disponible</Text>;
+    return <Text style={styles.errorText}>⚠️ No hay cámaras disponibles</Text>;
   }
 
   return (
@@ -59,8 +67,9 @@ const QRScanner: React.FC = () => {
       <Camera
         style={styles.camera}
         device={device}
-        isActive={true}
-        frameProcessor={undefined} // Si implementas un procesador de frames
+        isActive={true} // Activa la cámara
+        frameProcessor={undefined} // Agrega un frameProcessor si es necesario
+        onError={(error) => console.error('⚠️ Error en la cámara:', error)} // Manejo de errores
       />
     </View>
   );
