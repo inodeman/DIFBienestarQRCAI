@@ -10,37 +10,30 @@ const QRScanner: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const status = await Camera.getCameraPermissionStatus();
-      console.log('📸 Estado del permiso de la cámara:', status);
-
-      if (status !== 'authorized') {
-        const newPermission = await Camera.requestCameraPermission();
-        console.log('🔄 Nuevo estado del permiso:', newPermission);
-        setHasPermission(newPermission === 'authorized');
-      } else {
-        setHasPermission(true);
+      try {
+        const status = await Camera.getCameraPermissionStatus();
+        if (status !== 'authorized') {
+          const newPermission = await Camera.requestCameraPermission();
+          setHasPermission(newPermission === 'authorized');
+        } else {
+          setHasPermission(true);
+        }
+      } catch (error) {
+        console.error('⚠️ Error al solicitar permisos de cámara:', error);
+        setHasPermission(false);
       }
     })();
   }, []);
 
   useEffect(() => {
-    if (!devices || Object.keys(devices).length === 0) {
-      console.error('❌ No se detectaron cámaras en el dispositivo.');
-      return;
+    if (devices) {
+      const { back, front } = devices;
+      if (back) {
+        setDevice(back);
+      } else if (front) {
+        setDevice(front);
+      }
     }
-
-    console.log('📷 Dispositivos de cámara detectados:', devices);
-
-    if (devices.back) {
-      console.log('🎥 Cámara trasera detectada:', devices.back);
-      setDevice(devices.back);
-    } else if (devices.front) {
-      console.log('🎥 No se detectó cámara trasera, usando cámara frontal:', devices.front);
-      setDevice(devices.front);
-    } else {
-      console.error('❌ No se detectó ninguna cámara en el dispositivo.');
-    }
-
     setLoading(false);
   }, [devices]);
 
@@ -54,7 +47,7 @@ const QRScanner: React.FC = () => {
   }
 
   if (!hasPermission) {
-    return <Text style={styles.errorText}>🚫 Sin permisos de cámara</Text>;
+    return <Text style={styles.errorText}>🚫 No se otorgaron permisos de cámara</Text>;
   }
 
   if (!device) {
@@ -63,7 +56,12 @@ const QRScanner: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} device={device} isActive={true} />
+      <Camera
+        style={styles.camera}
+        device={device}
+        isActive={true}
+        frameProcessor={undefined} // Si implementas un procesador de frames
+      />
     </View>
   );
 };
