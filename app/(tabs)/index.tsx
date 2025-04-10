@@ -36,15 +36,13 @@ export default function App() {
         // fechas
         const fechaStr = parsedData.fecha;  // '9/4/2025'
         const horaStr = parsedData.hora;    // '7:10:01 p.m.'
-
-        // Parseamos la fecha y la hora usando el formato adecuado
-        const fechaHoraStr = `${fechaStr} ${horaStr}`;  // '9/4/2025 7:10:01 p.m.'
-        const fechaHora = parse(fechaHoraStr, "d/M/yyyy h:mm:ss a", new Date());  // Convertimos a objeto Date
+        const horaStrNormalizada = horaStr.replace(/\s+/g, ' ').trim();
+        const fechaHoraStr = `${fechaStr} ${horaStrNormalizada}`;  // '9/4/2025 7:10:01 p.m.'
+        const fechaHora = parse(fechaHoraStr, "d/M/yyyy h:mm:ss a", new Date());
 
         // Ahora, formateamos la fecha combinada en el formato correcto
         const fechaFormateada = format(fechaHora, "yyyy-MM-dd HH:mm:ss.SSSxxx");
-
-        console.log(fechaFormateada);  // Ejemplo: '2025-04-09 19:10:01.000-06:00'
+        console.log(fechaFormateada);
         // Modificamos el objeto para que coincida con los campos de Django
         const formattedData = {
           nombre_persona: parsedData.nombre,
@@ -72,7 +70,7 @@ export default function App() {
       }
     }
   };
-  
+
   return (
     <View style={styles.container}>
       <CameraView
