@@ -1,6 +1,7 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { format, parse } from 'date-fns';
 
 export default function App() {
   const [facing, setFacing] = useState<'back' | 'front'>('back');
@@ -32,12 +33,25 @@ export default function App() {
       try {
         const parsedData = JSON.parse(data); // Se asegura que los datos están en formato JSON
         console.log(`${parsedData.fecha} ${parsedData.hora}`)
+        // fechas
+        const fechaStr = parsedData.fecha;  // '9/4/2025'
+        const horaStr = parsedData.hora;    // '7:10:01 p.m.'
+
+        // Parseamos la fecha y la hora usando el formato adecuado
+        const fechaHoraStr = `${fechaStr} ${horaStr}`;  // '9/4/2025 7:10:01 p.m.'
+        const fechaHora = parse(fechaHoraStr, "d/M/yyyy h:mm:ss a", new Date());  // Convertimos a objeto Date
+
+        // Ahora, formateamos la fecha combinada en el formato correcto
+        const fechaFormateada = format(fechaHora, "yyyy-MM-dd HH:mm:ss.SSSxxx");
+
+        console.log(fechaFormateada);  // Ejemplo: '2025-04-09 19:10:01.000-06:00'
         // Modificamos el objeto para que coincida con los campos de Django
         const formattedData = {
           nombre_persona: parsedData.nombre,
           apellidos: parsedData.apellidos,
           cai: parsedData.cai,
-          fecha_hora: `${parsedData.fecha} ${parsedData.hora}`, // Combinamos la fecha y la hora
+          // fecha_hora: `${parsedData.fecha} ${parsedData.hora}`,
+          fecha_hora: fechaHora,
         };
   
         const response = await fetch('http://192.168.0.8:8000/api/asistencias/registrar/', {
@@ -59,35 +73,6 @@ export default function App() {
     }
   };
   
-  // const handleBarCodeScanned = async ({ data }: { data: string }) => {
-  //   if (!scanned) {
-  //     setScanned(true);
-  //     setQrData(data);
-
-  //     alert(`Código escaneado: ${data}`);
-
-  //     try {
-  //       const parsedData = JSON.parse(data); // Se asegura que los datos están en formato JSON
-
-  //       const response = await fetch('http://192.168.0.8:8000/api/asistencias/registrar/', {
-  //         method: 'POST',
-  //         headers: { 'Content-Type': 'application/json' },
-  //         body: JSON.stringify(parsedData),
-  //       });
-
-  //       const result = await response.json();
-  //       if (result.message) {
-  //         alert(result.message); // Mensaje de éxito o error
-  //       } else {
-  //         alert('No se pudo registrar la asistencia.');
-  //       }
-  //     } catch (error) {
-  //       console.error('Error al registrar asistencia:', error);
-  //       alert('Error al registrar asistencia');
-  //     }
-  //   }
-  // };
-
   return (
     <View style={styles.container}>
       <CameraView
