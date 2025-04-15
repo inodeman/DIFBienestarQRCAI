@@ -13,6 +13,7 @@ export default function App() {
   const [escuelasupervisor, setEscuelaSupervisor] = useState('');
   const [modalVisible, setModalVisible] = useState(true); // Estado para mostrar el modal
   const [filteredCAIs, setFilteredCAIs] = useState([]);
+  const [password, setPassword] = useState('');
 
   const fetchCAIs = async (search) => {
     try {
@@ -39,6 +40,11 @@ export default function App() {
 
   // Guardar comentario en AsyncStorage cuando se cierra el modal
   const handleModalClose = async () => {
+    if (password.trim() !== escuelasupervisor.trim()) {
+      alert('La contraseña debe ser igual al nombre del CAI seleccionado.');
+      return;
+    }
+
     await AsyncStorage.setItem('escuelasupervisor', escuelasupervisor); // Guarda el comentario
     setModalVisible(false); // Cierra el modal
   };
@@ -117,30 +123,19 @@ export default function App() {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Selecciona tu CAI</Text>
-          <TextInput
+
+            <TextInput
             style={styles.input}
             value={escuelasupervisor}
             onChangeText={(text) => {
               setEscuelaSupervisor(text);
-              fetchCAIs(text); // Buscar en la API
+              fetchCAIs(text);
             }}
             placeholder="Escribe para buscar..."
             placeholderTextColor="#ccc"
-          />
+            />
 
-          {/* {filteredCAIs.map((cai) => (
-            <TouchableOpacity
-              key={cai.id}
-              style={styles.caiItem}
-              onPress={() => {
-                setEscuelaSupervisor(cai.nombre);
-                setFilteredCAIs([]); // Ocultar sugerencias
-              }}
-            >
-              <Text>{cai.nombre}</Text>
-            </TouchableOpacity>
-          ))} */}
-          {filteredCAIs.length > 0 && (
+            {filteredCAIs.length > 0 && (
             <View style={{ maxHeight: '40%', marginTop: 10 }}>
               <ScrollView>
                 {filteredCAIs.map((cai) => (
@@ -149,7 +144,7 @@ export default function App() {
                     style={styles.caiItem}
                     onPress={() => {
                       setEscuelaSupervisor(cai.nombre);
-                      setFilteredCAIs([]); 
+                      setFilteredCAIs([]);
                     }}
                   >
                     <Text>{cai.nombre}</Text>
@@ -157,14 +152,22 @@ export default function App() {
                 ))}
               </ScrollView>
             </View>
-          )}
+            )}
 
+            <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Confirma el CAI como contraseña"
+            placeholderTextColor="#ccc"
+            secureTextEntry
+            />
 
             <TouchableOpacity
-              style={styles.saveButton}
-              onPress={handleModalClose} // Cerrar modal y guardar el comentario
+            style={styles.saveButton}
+            onPress={handleModalClose}
             >
-              <Text style={styles.saveText}>Guardar</Text>
+            <Text style={styles.saveText}>Guardar</Text>
             </TouchableOpacity>
           </View>
         </View>
